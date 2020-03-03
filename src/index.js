@@ -9,7 +9,6 @@ app.use(express.static('dist'));
 app.use(cors());
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-
 //ROUTES
 app.get('/instances', instanceController.getInstances);
 app.post('/instances', instanceController.postInstances);

@@ -1,65 +1,36 @@
 const fs = require('fs');
 const fetch = require('node-fetch');
+const axios = require('axios');
 const request = require('request');
 const instancesFile = require('./instances.json')
 
 module.exports = function CKAN() {
     async function generateVisualizationData(instanceName) {
         try {
-            console.log(instanceName)
-            const instance = instancesFile.instances.find(function (instance) {
-                return instance.name === instanceName;
-            });
-            const packagesList = await getPackageList()
-            // const packagesList = await new Promise(function (resolve, reject) {
-            //     request(`${instance.url}api/rest/package`, function (error, response, body) {
-            //         if (!error && response.statusCode == 200) {
-            //             resolve(JSON.parse(body))
-            //         } else {
-            //             reject(`Error finding packages ${instance.url} .`, error)
-            //         }
-            //     })
-            // })
-
-            // const packages = await getInfoPackage(instance.url, packagesList)
-            const packageInfo = []
-            packagesList.forEach(async function (package, index) {
-                console.log(index)
-                packageInfo.push(await getInfoPackage(instance.url, package))
-            });
-            console.log(packageInfo)
-
-            // const nodes = await getNodes(packages)
-            // console.log(nodes.length)
-            // const links = await getLinks(packages)
-            // console.log(links.length)
-            // return {
-            //     "nodes": getNodes(metadataFile.packages),
-            //     "links": getLinks(metadataFile.packages)
-            // };
+            const instance = instancesFile.instances.find(instance => instance.name === instanceName)
+            const packagesInfo = await getPackageInfo(instance)
+            return createNodesAndLinks(packagesInfo)
         } catch (error) {
-            throw new Error(`Error charging data to graphics.`, error)
+            console.error(error)
+            // throw new Error(`Error charging data to graphics.`, error)
         }
     }
 
-    async function getPackageList() {
+    async function getPackageInfo(instance) {
+        const packagesList = await getCKANservice(`${instance.url}api/rest/package`)
+        const packageInfo = []
+        for (const package of packagesList) {
+            packageInfo.push(await getCKANservice(`${instance.url}api/rest/package/${package}`))
+        }
+        return packageInfo
+    }
+
+    async function getCKANservice(url) {
         try {
-            const response = await fetch(`${instance.url}api/rest/package`);
-            console.log(response.json())
-            return response.json()
+            const response = await axios.get(url);
+            return response.data
         } catch (error) {
             throw new Error(`Error getting package list. ${error.message}`, error)
-        }
-
-    }
-
-    async function getInfoPackage(url, package) {
-        try {
-            const response = await fetch(`${url}api/rest/package/${package}`);
-            console.log(response.json())
-            return response;
-        } catch (error) {
-            throw new Error(`Error getting package data.${error.message}`, error)
         }
     }
 
@@ -71,23 +42,49 @@ module.exports = function CKAN() {
         return temp_name
     }
 
-    async function getNodes(packages) {
+    async function createNodesAndLinks(packages) {
+        const nodes = []
+        const links = []
+        const packagesSorted = sortPackageByName(packages)
+        for (const package of packages) {
+            nodes.push(await getNodes(package))
+            links.push(await getLinks(package, packagesSorted))
+        }
+        const result = {
+            nodes,
+            links
+        }
+        console.log(result)
+        return result
+    }
+
+    function sortPackageByName(packages) {
+        const newPackage = {};
+        for (const package of packages) {
+            return newPackage[package.name] = package;
+        }
+        return newPackage
+    }
+
+    async function getNodes(package) {
         try {
-            return await packages.map((package) => {
-                return {
-                    'cluster': calculateClusterByTripletes(package),
-                    'triples': triples,
-                    'ratings_average': package.ratings_average,
-                    'ratings_count': package.ratings_count,
-                    'text': package.title,
-                    'id': package.nternal_id,
-                    'nodeTitle': package.name ? package.name : package.title,
-                    'license_title': package.license_title,
-                    'size': package.num_resources,
-                    'state': package.state
-                }
-            });
+            tempPackageData = {
+                ratings_average: package.ratings_average,
+                ratings_count: package.ratings_count,
+                text: package.title,
+                id: package.id,
+                nodeTitle: package.name ? package.name : package.title,
+                license_title: package.license_title,
+                size: package.num_resources,
+                state: package.state
+            }
+            if (package.extras && package.extras.triples) {
+                tempPackageData.cluster = calculateClusterByTripletes(package)
+                tempPackageData.triples = triples
+            }
+            return tempPackageData
         } catch (error) {
+            console.error(error)
             throw new Error('Error creating nodes.', error)
         }
 
@@ -106,27 +103,41 @@ module.exports = function CKAN() {
         return cluster
     }
 
-    async function getLinks(packages) {
+    async function getLinks(package, sortedPackages) {
         try {
             let toPackageName;
             let count;
-            let packageMap = packages.map((package) => {
-                let newPackage = {};
-                return newPackage[package.name] = this.package;
-            });
-            return await packages.map((package) => {
-                package.extras.map((extra) => {
-                    if (extra.key.startsWith('links:')) {
-                        toPackageName = extra.key.split(':')[1];
+            const links = []
+            // console.log(package)
+            if (package.extras) {
+                for (const extra in package.extras) {
+                    if (extra.startsWith('links:')) {
+                        toPackageName = extra.split(':')[1]
+                        if (sortedPackages.hasOwnProperty(toPackageName)) {
+                            console.log(`${package.extras} has link to ${toPackageName} which doesnt exist`)
+                            continue
+                        }
+                        count = assignValue(package.extras, extra)
+                        links.push([package.id, sortedPackages[toPackageName]['id'], count])
                     }
-                    count = extra.value;
-                    return ([package.internal_id], packageMap[toPackageName]['internal_id'], count);
-                });
-            });
+                }
+            }
+            return links
         } catch (error) {
+            console.error(error)
             throw new Error('Error creating links.', error)
         }
 
+    }
+
+    function assignValue(extras, extra) {
+        let count
+        try {
+            count = parseInt(extras[extra])
+        } catch (error) {
+            count = 1
+        }
+        return count
     }
 
     async function createDataFile(instanceName) {
@@ -135,6 +146,7 @@ module.exports = function CKAN() {
     }
 
     return {
-        generateVisualizationData
+        generateVisualizationData,
+        getPackageInfo
     }
 }

@@ -25,11 +25,11 @@ module.exports = function instance() {
 
     async function getInstancesByURL(req, res) {
         const { instanceName } = req.params
-        console.log(req.params)
         try {
+            console.log('entro', instanceName)
             res.send(await INSTANCE.findInstanceByName(instanceName))
         } catch (error) {
-            console.log(error.message)
+            console.log(error)
             res.status(500).jsonp({ message: error.message })
         }
     }
