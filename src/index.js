@@ -1,8 +1,13 @@
 const express = require('express');
 const cors = require('cors');
+const mongoose = require('mongoose');
 const instanceController = require('./controllers/instance')()
 const ckanController = require('./controllers/ckan')()
 
+await mongoose.connect('mongodb://localhost/lod', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
 
 const app = express();
 app.use(express.static('dist'));

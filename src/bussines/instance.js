@@ -46,6 +46,9 @@ module.exports = function instance() {
     }
 
     function analyseData(packageInfo){
+        let accessible = 0
+        let relevant = 0
+        let open = 0
 
 
     }
