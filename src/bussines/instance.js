@@ -39,18 +39,70 @@ module.exports = function instance() {
     async function findInstanceByName(instanceName) {
         try {
             const instance = instancesFile.instances.find(instance => instance.name === instanceName)
-            return ckan.getPackageInfo(instance)
+            const packageInfo= ckan.getPackageInfo(instance)
+            // packageInfo.accessible = getPercentageAccessibility(packageInfo)
+            return packageInfo
         } catch (error) {
+            console.error(error)
             throw new Error(`Error finding instance by name.`, error)
         }
     }
 
     function analyseData(packageInfo){
-        let accessible = 0
-        let relevant = 0
+        let accessible = getPercentageAccessibility(packageInfo)
+        let relevant = 100
         let open = 0
+        
 
+    }
 
+    function getPercentageAccessibility(packageInfo){
+        let totalPercentage = 1;
+        const downloadUrl = packageInfo.download_url
+        const resources = packageInfo.resources 
+        const url = packageInfo.url
+        const ckanUrl = packageInfo.ckan_url
+
+        const accessibilityUrls = [downloadUrl, url, ckanUrl]
+        const percentageByField = 1/(accessibilityUrls.length+1)
+        
+        for (const url of accessibilityUrls) {
+            if(!verifyURLState(url)){
+                totalPercentage-=percentageByField
+            }
+        }
+        totalPercentage-= getPercentageByResources(resources) * percentageByField
+        return totalPercentage
+    }
+
+    function getPercentageByResources(resources){
+        const percentageByResource = 1/resources.length
+        let totalPercentageForResources = 1;
+        for (const resource of resources) {
+            if(!verifyURLState(resource.url)){
+                totalPercentageForResources -= percentageByResource
+            }
+        }
+        return totalPercentageForResources
+    }
+
+    async function verifyURLState(url){
+        try {
+            await axios.get(url);
+            return true
+        } catch (error) {
+            return false
+        }
+    }
+
+    function getPercentageRelevance(){
+
+        
+    }
+
+    function getPercentageOpening(){
+
+        
     }
 
     return {
