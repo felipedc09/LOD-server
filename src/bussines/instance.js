@@ -40,9 +40,10 @@ module.exports = function instance() {
         try {
             const instance = instancesFile.instances.find(instance => instance.name === instanceName)
             const packageInfo= ckan.getPackageInfo(instance)
-            packageInfo.accessible = getPercentageAccessibility(packageInfo)
+            // packageInfo.accessible = getPercentageAccessibility(packageInfo)
             return packageInfo
         } catch (error) {
+            console.error(error)
             throw new Error(`Error finding instance by name.`, error)
         }
     }
@@ -85,7 +86,7 @@ module.exports = function instance() {
         return totalPercentageForResources
     }
 
-    function verifyURLState(url){
+    async function verifyURLState(url){
         try {
             await axios.get(url);
             return true
