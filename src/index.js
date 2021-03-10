@@ -6,15 +6,10 @@ const instanceController = require('./controllers/instance')()
 const packageController = require('./controllers/package')()
 const conf = require('../config')
 
-mongoose.connect(
-  // `mongodb://${conf.dbUser}:${conf.dbPwd}@${conf.dbHost}:${conf.dbPort}/${conf.dbName}`, {
-  //   useNewUrlParser: true,
-  //   useUnifiedTopology: true
-  // })
-  `${conf.dbUrl}${conf.dbHost}:${conf.dbPort}/${conf.dbName}`, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  })
+mongoose.connect(`${conf.dbUrl}${conf.dbUser}:${conf.dbPwd}@${conf.dbHost}/${conf.dbName}?retryWrites=true&w=majority`, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
 
 const app = express()
 app.use(express.static('dist'))
