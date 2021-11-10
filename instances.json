@@ -1,9 +1,10 @@
 {
   "instances": [
-    { "name": "Data ottawa", "url": "http://data.ottawa.ca/" },
-    { "name": "Iatiregistry", "url": "https://iatiregistry.org/" },
-    { "name": "Data zagreb", "url": "http://data.zagreb.hr/" },
-    { "name": "Drdsi jrc ec europa", "url": "http://drdsi.jrc.ec.europa.eu/" },
+    { "name": "data.barrowbc.gov.uk", "url": "https://data.barrowbc.gov.uk/" },
+    { "name": "dataportal.aquacross.eu", "url": "http://dataportal.aquacross.eu/" },
+    { "name": "opendata.aragon.es", "url": "https://opendata.aragon.es/" },
+    { "name": "dados.al.gov.br", "url": "http://dados.al.gov.br/" },
+    { "name": "data.zagreb.hr", "url": "http://data.zagreb.hr/" },
     { "name": "Dartportal leeds", "url": "http://dartportal.leeds.ac.uk/" },
     { "name": "data.gov.ro", "url": "http://data.gov.ro/" },
     { "name": "opendata caceres", "url": "http://opendata.caceres.es/" },

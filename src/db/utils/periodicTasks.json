@@ -1,0 +1,7 @@
+[
+	{
+		"path": "./populateDB.js",
+		"method": "populateDB",
+		"periodicity": "2000000"
+	}
+]
