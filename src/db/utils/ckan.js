@@ -19,8 +19,8 @@ module.exports = function () {
     const packagesList = await getCKANService(`${instance.url}api/rest/package`)
     console.log('instance  ----- ', instance)
     console.log(' packagesList.length ******** ', packagesList.length)
-    
-    if(packagesList.length > instance.packagesCount){
+
+    if (packagesList.length > instance.packagesCount) {
       await instanceDB.updateInstance(instance._id, { packagesCount: packagesList.length })
       await setPackageInfo(packagesList, instance)
     }
@@ -29,11 +29,11 @@ module.exports = function () {
   async function setPackageInfo (packagesList, instance) {
     for (const packageItem of packagesList) {
       const packageExist = await packageDB.findPackagesByQuery({ name: packageItem.name, instanceId: instance._id })[0]
-      if(!packageExist || packageExist.metadata_modified !== packageItem.metadata_modified){
+      if (!packageExist || packageExist.metadata_modified !== packageItem.metadata_modified) {
         const packageData = await getCKANService(`${instance.url}api/rest/package/${packageItem}`)
-        if(!packageExist){
+        if (!packageExist) {
           await packageDB.createPackage({ ...packageData, instanceId: instance._id })
-        }else{
+        } else {
           await packageDB.updatePackage(packageItem._id, packageData)
         }
       }

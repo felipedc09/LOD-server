@@ -6,7 +6,11 @@ const instanceController = require('./controllers/instance')()
 const packageController = require('./controllers/package')()
 const conf = require('../config')
 
-mongoose.connect(`${conf.dbUrl}${conf.dbUser}:${conf.dbPwd}@${conf.dbHost}/${conf.dbName}?retryWrites=true&w=majority`, {
+let dbConenctionURI = conf.dbUrl ? conf.dbUrl : 'mongodb://'
+dbConenctionURI += (conf.dbUser && conf.dbPwd) && `${conf.dbUser}:${conf.dbPwd}@`
+const conenctionDir = `${dbConenctionURI}${conf.dbHost}:${conf.dbPort}/${conf.dbName}`
+
+mongoose.connect(conenctionDir, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })

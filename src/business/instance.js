@@ -19,7 +19,7 @@ module.exports = function instance () {
 
   async function addNewInstance (instance) {
     try {
-      return instanceDB.createInstance({...instance, packagesCount: 0})
+      return instanceDB.createInstance({ ...instance, packagesCount: 0 })
     } catch (error) {
       throw new Error(`Error adding a new instance.${error}`, error)
     }

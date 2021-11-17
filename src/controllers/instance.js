@@ -3,7 +3,9 @@ const INSTANCE = require('../business/instance')()
 module.exports = function instance () {
   async function getInstances (req, res) {
     try {
-      res.send(await INSTANCE.findInstances())
+      const resu = await INSTANCE.findInstances()
+      console.log(resu)
+      res.send(resu)
     } catch (error) {
       console.log(error.message)
       console.log(error)
@@ -40,7 +42,6 @@ module.exports = function instance () {
       res.status(500).jsonp({ message: error.message })
     }
   }
-
 
   return {
     getInstances,

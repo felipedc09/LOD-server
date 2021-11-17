@@ -18,7 +18,6 @@ module.exports = function () {
     }
   }
 
-
   async function findInstanceById (instanceId) {
     try {
       return InstanceModel.findOne({ _id: instanceId })
@@ -57,7 +56,7 @@ module.exports = function () {
   async function deleteInstance (_id) {
     try {
       return InstanceModel.deleteOne(
-        { _id },
+        { _id }
       )
     } catch (error) {
       throw new Error(error.message)
