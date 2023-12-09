@@ -14,7 +14,7 @@
   "author": "Felipe Duitama",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.21.2",
+    "axios": "^1.6.0",
     "babel-polyfill": "^6.26.0",
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
